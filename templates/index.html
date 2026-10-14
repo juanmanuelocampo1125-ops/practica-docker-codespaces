@@ -1,38 +1,253 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Registro de productos</title>
-</head>
-<body>
-  <h1>Registrar producto</h1>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Almacén Central</title>
 
-  <form method="post">
-    <label>Nombre:
-      <input name="nombre" required>
-    </label>
-    <br>
+  <style>
+    :root {
+      --fondo: #f5f6f2;
+      --blanco: #fff;
+      --texto: #20251f;
+      --gris: #777e75;
+      --verde: #356b4b;
+      --verde-claro: #e8f1e9;
+      --borde: #e6e9e2;
+      --naranja: #f4a261;
+    }
 
-    <label>Categoría:
-      <input name="categoria" required>
-    </label>
-    <br>
+    * { box-sizing: border-box; }
 
-    <label>Precio:
-      <input name="precio" type="number" step="0.01" min="0" required>
-    </label>
-    <br>
+    body {
+      margin: 0;
+      color: var(--texto);
+      background: var(--fondo);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
 
-    <button type="submit">Guardar</button>
-  </form>
+    .app {
+      display: grid;
+      grid-template-columns: 225px 1fr;
+      min-height: 100vh;
+    }
 
-  <h2>Productos guardados</h2>
-  <ul>
-    {% for producto in productos %}
-      <li>{{ producto[1] }} — {{ producto[2] }} — ${{ "%.2f"|format(producto[3]) }}</li>
-    {% else %}
-      <li>Aún no hay productos.</li>
-    {% endfor %}
-  </ul>
-</body>
-</html>
+    aside {
+      padding: 28px 18px;
+      background: #fff;
+      border-right: 1px solid var(--borde);
+    }
+
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 0 0 45px 8px;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .marca-icono {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border-radius: 11px;
+      color: white;
+      background: var(--verde);
+    }
+
+    .etiqueta-menu {
+      margin: 0 0 12px 10px;
+      color: #a0a69e;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .13em;
+    }
+
+    .menu {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 7px;
+      padding: 12px 13px;
+      border-radius: 9px;
+      color: var(--gris);
+      font-size: 13px;
+    }
+
+    .menu.activo {
+      color: var(--verde);
+      background: var(--verde-claro);
+      font-weight: 700;
+    }
+
+    .nota {
+      margin-top: 45px;
+      padding: 14px;
+      border-radius: 12px;
+      color: #55705b;
+      background: #f3f7ef;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      margin: auto;
+      padding: 38px clamp(20px, 5vw, 58px);
+    }
+
+    .encabezado {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .sobretitulo {
+      margin: 0 0 7px;
+      color: var(--verde);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 35px);
+      letter-spacing: -.04em;
+    }
+
+    .fecha {
+      color: var(--gris);
+      font-size: 12px;
+    }
+
+    .resumen {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .tarjeta-resumen {
+      padding: 20px 22px;
+      border: 1px solid var(--borde);
+      border-radius: 13px;
+      background: var(--blanco);
+    }
+
+    .tarjeta-resumen span {
+      color: var(--gris);
+      font-size: 12px;
+    }
+
+    .tarjeta-resumen strong {
+      display: block;
+      margin-top: 9px;
+      font-size: 25px;
+    }
+
+    .contenido {
+      display: grid;
+      grid-template-columns: minmax(250px, .75fr) minmax(380px, 1.5fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      overflow: hidden;
+      border: 1px solid var(--borde);
+      border-radius: 13px;
+      background: var(--blanco);
+    }
+
+    .panel-cabecera {
+      padding: 19px 21px;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .panel-cabecera p {
+      margin: 6px 0 0;
+      color: var(--gris);
+      font-size: 12px;
+    }
+
+    form { padding: 20px; }
+
+    label {
+      display: block;
+      margin: 0 0 7px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      margin-bottom: 16px;
+      padding: 11px 12px;
+      border: 1px solid #dce1d9;
+      border-radius: 8px;
+      background: #fcfdfb;
+      color: var(--texto);
+      font: inherit;
+      font-size: 13px;
+    }
+
+    input:focus {
+      outline: 2px solid #c9dfcd;
+      border-color: var(--verde);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      border-radius: 8px;
+      color: white;
+      background: var(--verde);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { background: #28563a; }
+
+    .tabla-wrap { overflow-x: auto; padding: 4px 18px 16px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      padding: 13px 9px;
+      color: #8b9289;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 14px 9px;
+      border-top: 1px solid #edf0eb;
+      font-size: 13px;
+    }
+
+    .nombre {
+      font-weight: 700;
+    }
+
+    .categoria {
+  display: inline-block;
+}
